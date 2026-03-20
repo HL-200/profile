@@ -8,9 +8,148 @@
   @font-face {
     font-family: 'RWBY';
     src: url('RWBY-Z.ttf') format('truetype');
+  }  /* YouTube Bar */
+  .yt-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 420px;
+    max-width: 95vw;
+    background: rgba(10, 10, 20, 0.92);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(167,139,250,0.2);
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
+    animation: slideUp 0.5s 0.8s cubic-bezier(0.16,1,0.3,1) both;
   }
-</style>
-<style>
+  @keyframes slideUp {
+    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+    to   { transform: translateX(-50%) translateY(0);   opacity: 1; }
+  }
+  .yt-thumbnail {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #1a1a2e;
+  }
+  .yt-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .yt-play-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.4);
+    font-size: 14px;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s;
+    cursor: pointer;
+  }
+  .yt-thumbnail:hover .yt-play-icon { opacity: 1; }
+  .yt-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .yt-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: 'RWBY', sans-serif;
+    letter-spacing: 0.05em;
+  }
+  .yt-channel {
+    font-size: 0.68rem;
+    color: #94a3b8;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: sans-serif;
+  }
+  .yt-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .yt-time {
+    font-size: 0.6rem;
+    color: #64748b;
+    font-family: monospace;
+    flex-shrink: 0;
+  }
+  .yt-progress-bg {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 99px;
+    cursor: pointer;
+    position: relative;
+  }
+  .yt-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #a78bfa, #60a5fa);
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.5s linear;
+  }
+  .yt-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .yt-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .yt-btn:hover { color: white; background: rgba(255,255,255,0.08); }
+  .yt-btn-main {
+    background: rgba(167,139,250,0.2);
+    color: #a78bfa;
+    font-size: 16px;
+  }
+  .yt-btn-main:hover { background: rgba(167,139,250,0.35); color: white; }
+  .yt-volume-slider {
+    -webkit-appearance: none;
+    width: 60px;
+    height: 3px;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.15);
+    outline: none;
+    cursor: pointer;
+  }
+  .yt-volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #a78bfa;
+    cursor: pointer;
+  }
+
   :root {
     --bg-deep: #0a0c14;
     --card-bg: linear-gradient(160deg, #1e1b4b 0%, #2d1b69 40%, #1e3a8a 100%);
@@ -296,6 +435,33 @@
 
 </div>
 
+<!-- YouTube Player Bar -->
+<div class="yt-bar" id="yt-bar">
+  <div class="yt-thumbnail" id="yt-thumb">
+    <img id="yt-thumb-img" src="" alt="">
+    <div class="yt-play-icon" id="yt-play-icon">▶</div>
+  </div>
+  <div class="yt-info">
+    <div class="yt-title" id="yt-title">Example Song Title</div>
+    <div class="yt-channel" id="yt-channel">Artist Name</div>
+    <div class="yt-progress-wrap">
+      <span class="yt-time" id="yt-current">0:00</span>
+      <div class="yt-progress-bg">
+        <div class="yt-progress-fill" id="yt-fill"></div>
+      </div>
+      <span class="yt-time" id="yt-duration">0:00</span>
+    </div>
+  </div>
+  <div class="yt-controls">
+    <button class="yt-btn" id="yt-prev">⏮</button>
+    <button class="yt-btn yt-btn-main" id="yt-toggle">▶</button>
+    <button class="yt-btn" id="yt-next">⏭</button>
+    <span id="yt-vol-icon" style="font-size:13px;cursor:default;">🔊</span>
+    <input type="range" id="yt-volume" min="0" max="100" value="100" class="yt-volume-slider">
+  </div>
+  <div id="yt-player" style="display:none"></div>
+</div>
+
 <script>
   // Generate particles
   const container = document.getElementById('particles');
@@ -398,6 +564,103 @@
   }
 
   connectLanyard();
-</script>
+  // YouTube Player
+  const PLAYLIST = [
+    { id: 'UecxAyn6NQE', title: 'ใส่ชื่อเพลงที่นี่', channel: 'ใส่ชื่อศิลปิน' },
+  ];
+
+  let currentTrack = 0;
+  let ytPlayer = null;
+  let isPlaying = false;
+  let progressTimer = null;
+
+  function fmtTime(s) {
+    s = Math.floor(s || 0);
+    return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  }
+
+  function loadTrack(idx) {
+    currentTrack = idx;
+    const t = PLAYLIST[idx];
+    document.getElementById('yt-title').textContent = t.title;
+    document.getElementById('yt-channel').textContent = t.channel;
+    document.getElementById('yt-thumb-img').src = `https://img.youtube.com/vi/${t.id}/mqdefault.jpg`;
+    document.getElementById('yt-fill').style.width = '0%';
+    document.getElementById('yt-current').textContent = '0:00';
+    document.getElementById('yt-duration').textContent = '0:00';
+    if (ytPlayer && ytPlayer.loadVideoById) {
+      ytPlayer.loadVideoById(t.id);
+      isPlaying = true;
+      document.getElementById('yt-toggle').textContent = '⏸';
+    }
+  }
+
+  function updateProgress() {
+    if (!ytPlayer || !ytPlayer.getCurrentTime) return;
+    const cur = ytPlayer.getCurrentTime();
+    const dur = ytPlayer.getDuration();
+    if (dur > 0) {
+      document.getElementById('yt-fill').style.width = `${(cur/dur)*100}%`;
+      document.getElementById('yt-current').textContent = fmtTime(cur);
+      document.getElementById('yt-duration').textContent = fmtTime(dur);
+    }
+  }
+
+  window.onYouTubeIframeAPIReady = function() {
+    ytPlayer = new YT.Player('yt-player', {
+      height: '0', width: '0',
+      videoId: PLAYLIST[0].id,
+      playerVars: { autoplay: 0, controls: 0 },
+      events: {
+        onReady: () => {
+          document.getElementById('yt-thumb-img').src = `https://img.youtube.com/vi/${PLAYLIST[0].id}/mqdefault.jpg`;
+          document.getElementById('yt-volume').value = ytPlayer.getVolume();
+          progressTimer = setInterval(updateProgress, 500);
+        },
+        onStateChange: (e) => {
+          if (e.data === YT.PlayerState.PLAYING) {
+            isPlaying = true;
+            document.getElementById('yt-toggle').textContent = '⏸';
+          } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
+            isPlaying = false;
+            document.getElementById('yt-toggle').textContent = '▶';
+            if (e.data === YT.PlayerState.ENDED) loadTrack((currentTrack+1) % PLAYLIST.length);
+          }
+        }
+      }
+    });
+  };
+
+  // Load YouTube API
+  const ytScript = document.createElement('script');
+  ytScript.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(ytScript);
+
+  document.getElementById('yt-toggle').onclick = () => {
+    if (!ytPlayer) return;
+    isPlaying ? ytPlayer.pauseVideo() : ytPlayer.playVideo();
+  };
+  document.getElementById('yt-next').onclick = () => loadTrack((currentTrack+1) % PLAYLIST.length);
+  document.getElementById('yt-prev').onclick = () => loadTrack((currentTrack-1+PLAYLIST.length) % PLAYLIST.length);
+  document.getElementById('yt-play-icon').onclick = () => {
+    if (!ytPlayer) return;
+    isPlaying ? ytPlayer.pauseVideo() : ytPlayer.playVideo();
+  };
+
+  // Seek by clicking progress bar
+  document.querySelector('.yt-progress-bg').onclick = (e) => {
+    if (!ytPlayer || !ytPlayer.getDuration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    ytPlayer.seekTo(pct * ytPlayer.getDuration(), true);
+  };
+
+  // Volume slider
+  document.getElementById('yt-volume').oninput = (e) => {
+    if (!ytPlayer) return;
+    ytPlayer.setVolume(parseInt(e.target.value));
+    document.getElementById('yt-vol-icon').textContent = e.target.value == 0 ? '🔇' : e.target.value < 50 ? '🔉' : '🔊';
+  };
+
 </body>
 </html>
