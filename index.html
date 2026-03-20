@@ -564,102 +564,58 @@
   }
 
   connectLanyard();
-  // YouTube Player
-  const PLAYLIST = [
-    { id: 'UecxAyn6NQE', title: 'ใส่ชื่อเพลงที่นี่', channel: 'ใส่ชื่อศิลปิน' },
-  ];
+  // Audio Player
+  const audio = new Audio('Kumo_Desu_Ga_Nani_Ka__-_Opening_2_Full_OPBursty_Greedy_Spider_Konomi_Suzuki.mp3');
+  audio.loop = false;
 
-  let currentTrack = 0;
-  let ytPlayer = null;
-  let isPlaying = false;
-  let progressTimer = null;
+  const TRACK = { title: 'Bursty Greedy Spider', channel: 'Konomi Suzuki' };
+  document.getElementById('yt-title').textContent = TRACK.title;
+  document.getElementById('yt-channel').textContent = TRACK.channel;
+  document.getElementById('yt-thumb-img').src = `https://img.youtube.com/vi/UecxAyn6NQE/mqdefault.jpg`;
 
   function fmtTime(s) {
     s = Math.floor(s || 0);
     return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
   }
 
-  function loadTrack(idx) {
-    currentTrack = idx;
-    const t = PLAYLIST[idx];
-    document.getElementById('yt-title').textContent = t.title;
-    document.getElementById('yt-channel').textContent = t.channel;
-    document.getElementById('yt-thumb-img').src = `https://img.youtube.com/vi/${t.id}/mqdefault.jpg`;
-    document.getElementById('yt-fill').style.width = '0%';
-    document.getElementById('yt-current').textContent = '0:00';
-    document.getElementById('yt-duration').textContent = '0:00';
-    if (ytPlayer && ytPlayer.loadVideoById) {
-      ytPlayer.loadVideoById(t.id);
-      isPlaying = true;
-      document.getElementById('yt-toggle').textContent = '⏸';
-    }
-  }
-
-  function updateProgress() {
-    if (!ytPlayer || !ytPlayer.getCurrentTime) return;
-    const cur = ytPlayer.getCurrentTime();
-    const dur = ytPlayer.getDuration();
-    if (dur > 0) {
-      document.getElementById('yt-fill').style.width = `${(cur/dur)*100}%`;
-      document.getElementById('yt-current').textContent = fmtTime(cur);
-      document.getElementById('yt-duration').textContent = fmtTime(dur);
-    }
-  }
-
-  window.onYouTubeIframeAPIReady = function() {
-    ytPlayer = new YT.Player('yt-player', {
-      height: '0', width: '0',
-      videoId: PLAYLIST[0].id,
-      playerVars: { autoplay: 0, controls: 0 },
-      events: {
-        onReady: () => {
-          document.getElementById('yt-thumb-img').src = `https://img.youtube.com/vi/${PLAYLIST[0].id}/mqdefault.jpg`;
-          document.getElementById('yt-volume').value = ytPlayer.getVolume();
-          progressTimer = setInterval(updateProgress, 500);
-        },
-        onStateChange: (e) => {
-          if (e.data === YT.PlayerState.PLAYING) {
-            isPlaying = true;
-            document.getElementById('yt-toggle').textContent = '⏸';
-          } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
-            isPlaying = false;
-            document.getElementById('yt-toggle').textContent = '▶';
-            if (e.data === YT.PlayerState.ENDED) loadTrack((currentTrack+1) % PLAYLIST.length);
-          }
-        }
-      }
-    });
-  };
-
-  // Load YouTube API
-  const ytScript = document.createElement('script');
-  ytScript.src = 'https://www.youtube.com/iframe_api';
-  document.head.appendChild(ytScript);
+  setInterval(() => {
+    if (!audio.duration) return;
+    const pct = (audio.currentTime / audio.duration) * 100;
+    document.getElementById('yt-fill').style.width = pct + '%';
+    document.getElementById('yt-current').textContent = fmtTime(audio.currentTime);
+    document.getElementById('yt-duration').textContent = fmtTime(audio.duration);
+  }, 500);
 
   document.getElementById('yt-toggle').onclick = () => {
-    if (!ytPlayer) return;
-    isPlaying ? ytPlayer.pauseVideo() : ytPlayer.playVideo();
+    if (audio.paused) {
+      audio.play();
+      document.getElementById('yt-toggle').textContent = '⏸';
+    } else {
+      audio.pause();
+      document.getElementById('yt-toggle').textContent = '▶';
+    }
   };
-  document.getElementById('yt-next').onclick = () => loadTrack((currentTrack+1) % PLAYLIST.length);
-  document.getElementById('yt-prev').onclick = () => loadTrack((currentTrack-1+PLAYLIST.length) % PLAYLIST.length);
+
   document.getElementById('yt-play-icon').onclick = () => {
-    if (!ytPlayer) return;
-    isPlaying ? ytPlayer.pauseVideo() : ytPlayer.playVideo();
+    document.getElementById('yt-toggle').click();
   };
 
-  // Seek by clicking progress bar
+  document.getElementById('yt-prev').onclick = () => { audio.currentTime = 0; };
+  document.getElementById('yt-next').onclick = () => { audio.currentTime = audio.duration; };
+
   document.querySelector('.yt-progress-bg').onclick = (e) => {
-    if (!ytPlayer || !ytPlayer.getDuration) return;
+    if (!audio.duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const pct = (e.clientX - rect.left) / rect.width;
-    ytPlayer.seekTo(pct * ytPlayer.getDuration(), true);
+    audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
   };
 
-  // Volume slider
   document.getElementById('yt-volume').oninput = (e) => {
-    if (!ytPlayer) return;
-    ytPlayer.setVolume(parseInt(e.target.value));
+    audio.volume = e.target.value / 100;
     document.getElementById('yt-vol-icon').textContent = e.target.value == 0 ? '🔇' : e.target.value < 50 ? '🔉' : '🔊';
+  };
+
+  audio.onended = () => {
+    document.getElementById('yt-toggle').textContent = '▶';
   };
 
 </body>
