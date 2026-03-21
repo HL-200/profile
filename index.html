@@ -182,9 +182,7 @@
 </div>
 
 <!-- Audio Element -->
-<audio id="audio-player" preload="auto">
-  <source src="song.mp3" type="audio/mpeg">
-</audio>
+<audio id="audio-player" preload="auto" src="song.mp3"></audio>
 <div class="yt-bar">
   <div class="yt-thumbnail" id="yt-thumb">
     <img id="yt-thumb-img" src="https://img.youtube.com/vi/UecxAyn6NQE/mqdefault.jpg" alt="">
@@ -270,8 +268,14 @@
   }, 500);
 
   document.getElementById('yt-toggle').onclick = () => {
-    if (audio.paused) { audio.play(); document.getElementById('yt-toggle').textContent = '⏸'; }
-    else { audio.pause(); document.getElementById('yt-toggle').textContent = '▶'; }
+    if (audio.paused) {
+      audio.play().then(() => {
+        document.getElementById('yt-toggle').textContent = '⏸';
+      }).catch(() => {});
+    } else {
+      audio.pause();
+      document.getElementById('yt-toggle').textContent = '▶';
+    }
   };
   document.getElementById('yt-play-icon').onclick = () => document.getElementById('yt-toggle').click();
   document.getElementById('yt-prev').onclick = () => { audio.currentTime = 0; };
@@ -286,6 +290,22 @@
     document.getElementById('yt-vol-icon').textContent = e.target.value == 0 ? '🔇' : e.target.value < 50 ? '🔉' : '🔊';
   };
   audio.onended = () => { document.getElementById('yt-toggle').textContent = '▶'; };
+
+  // เล่นเพลงอัตโนมัติเมื่อผู้ใช้คลิกครั้งแรก
+  let started = false;
+  document.addEventListener('click', () => {
+    if (!started) {
+      started = true;
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          document.getElementById('yt-toggle').textContent = '⏸';
+        }).catch(() => {
+          started = false;
+        });
+      }
+    }
+  });
 </script>
 </body>
 </html>
