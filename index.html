@@ -181,7 +181,10 @@
   </div>
 </div>
 
-<!-- Music Player Bar -->
+<!-- Audio Element -->
+<audio id="audio-player" preload="auto">
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
 <div class="yt-bar">
   <div class="yt-thumbnail" id="yt-thumb">
     <img id="yt-thumb-img" src="https://img.youtube.com/vi/UecxAyn6NQE/mqdefault.jpg" alt="">
@@ -256,12 +259,7 @@
   connectLanyard();
 
   // Audio Player
-  const audio = new Audio();
-  const source = document.createElement('source');
-  source.src = 'song.mp3';
-  source.type = 'audio/mpeg';
-  audio.appendChild(source);
-  audio.load();
+  const audio = document.getElementById('audio-player');
   function fmtTime(s) { s = Math.floor(s||0); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
 
   setInterval(() => {
